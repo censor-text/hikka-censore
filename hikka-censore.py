@@ -78,7 +78,7 @@ class CensoreProfanity(loader.Module):
         self.db.set(self.strings["name"], chat_id, 1)
         await message.edit("Включено")
 
-    async def censoffcmd(self, message):
+    async def censoffcmd(self, message: Message):
         """.censoff [<id>|<username>|all]
         Остановка фильтрации в том чате, куда отправлена команда
         Можно остановить в любом чате по id или username
@@ -110,7 +110,5 @@ class CensoreProfanity(loader.Module):
         ids = self.db.get(self.strings["name"], {})
         flag = ids.get(chat_id, 1)
 
-        if not flag or (flag == 0 and message.sender_id != self.me_id):
-            return
-
-        await message.edit(self.censor_text(message.raw_text))
+        if flag == 1:
+            await message.edit(self.censor_text(message.raw_text))
