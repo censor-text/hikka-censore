@@ -64,7 +64,6 @@ class CensoreProfanity(loader.Module):
         * запускает на все сообщения в текущем чате (по умолчанию на свои)"""
         
         args = utils.get_args_raw(message)
-        flag = 2 if args == "*" else 1
         
         if not args or args == "*":
             chat_id = utils.get_chat_id(message)
@@ -76,7 +75,7 @@ class CensoreProfanity(loader.Module):
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.strings["name"], chat_id, flag)
+        self.db.set(self.strings["name"], chat_id, 1)
         await message.edit("Включено")
 
     async def censoffcmd(self, message):
@@ -100,9 +99,7 @@ class CensoreProfanity(loader.Module):
             except Exception:
                 return await message.edit("invalid")
                 
-        ids = self.db.get(self.strings["name"], {})
-        ids[chat_id] = 0
-        self.db.set(self.strings["name"], ids)
+        self.db.set(self.strings["name"][chat_id], 0)
         await message.edit("off")
 
     @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
@@ -111,9 +108,9 @@ class CensoreProfanity(loader.Module):
         
         chat_id = utils.get_chat_id(message)
         ids = self.db.get(self.strings["name"], {})
-        flag = ids.get(chat_id, 0)
+        flag = ids.get(chat_id, 1)
 
-        if not flag or (flag == 1 and message.sender_id != self.me_id):
+        if not flag or (flag == 0 and message.sender_id != self.me_id):
             return
 
         await message.edit(self.censor_text(message.raw_text))
