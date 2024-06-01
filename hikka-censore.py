@@ -39,7 +39,7 @@ class CensoreProfanity(loader.Module):
 
         censored_text = self.censor_text(raw_text)
         
-        if raw_text != censtext:
+        if raw_text != censored_text:
             await message.edit(censored_text)
         else:
             await message.edit(censored_text if not message.is_reply else "")
