@@ -1,5 +1,7 @@
 from hikkatl.types import Message
 from .. import loader, utils
+# requires: censore
+from censore import Censor
 
 @loader.tds
 class CensoreProfanity(loader.Module):
@@ -8,13 +10,6 @@ class CensoreProfanity(loader.Module):
     strings = {"name": "CensoreProfanity"}
 
     async def client_ready(self, client, db):
-        try:
-            from censore import Censor
-
-        except ImportError:
-            await self._hikka.install_pip_package("censore")
-            from censore import Censor
-
         self.db = db
         self.me_id = (await client.get_me()).id
 
