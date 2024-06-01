@@ -1,6 +1,5 @@
 from hikkatl.types import Message
 from .. import loader, utils
-# requires: censore
 from censore import Censor
 
 @loader.tds
@@ -12,7 +11,6 @@ class CensoreProfanity(loader.Module):
     async def client_ready(self, client, db):
         self.db = db
         self.me_id = (await client.get_me()).id
-
         self.censor = Censor(languages=["all"])
         self.censor_text = self.censor.censor_text
 
@@ -72,11 +70,11 @@ class CensoreProfanity(loader.Module):
                 or not chat.admin_rights.delete_messages
             ):
                 return await message.edit("<b>Не могу удалять чужие посты в этом чате</b>")
-            flag = 1
+            flag = 1  # 2 - to filter all messages in the chat
             args = args[:-1]
             
         else:
-            flag = 1
+            flag = 1  # 1 - to filter only user's messages
         if not args:
             id = utils.get_chat_id(message)
         elif args.isnumeric():
@@ -121,10 +119,10 @@ class CensoreProfanity(loader.Module):
     async def watch_outgoing(self, message: Message):
         """Watch and edit outgoing text messages"""
         
-        id = utils.get_chat_id(event)
+        id = utils.get_chat_id(message)
         flag = self.db.get(self.name, id, 0)
         
-        if not flag or (flag == 1 and event.sender_id != self.me_id):
+        if not flag or (flag == 1 and message.sender_id != self.me_id):
             return
 
         await message.edit(self.censor_text(message.raw_text))
