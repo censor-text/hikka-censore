@@ -87,7 +87,7 @@ class CensoreProfanity(loader.Module):
         
         args = utils.get_args_raw(message)
         if args == "all":
-            self.db[self.strings["name"]] = {}
+            self.db.set(self.strings["name"], {})
             return await message.edit("off")
             
         if not args:
@@ -100,7 +100,9 @@ class CensoreProfanity(loader.Module):
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.strings["name"], chat_id, 0)
+        ids = self.db.get(self.strings["name"], {})
+        ids[chat_id] = 0
+        self.db.set(self.strings["name"], ids)
         await message.edit("off")
 
     @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
@@ -108,10 +110,9 @@ class CensoreProfanity(loader.Module):
         """Watch and edit outgoing text messages"""
         
         chat_id = utils.get_chat_id(message)
-        flag = self.db.get(self.strings["name"], {}).get(chat_id, 0)
+        ids = self.db.get(self.strings["name"], {})
+        flag = ids.get(chat_id, 0)
 
-        await message.answer(self.db.get(self.strings["name"], {}))
-        
         if not flag or (flag == 1 and message.sender_id != self.me_id):
             return
 
