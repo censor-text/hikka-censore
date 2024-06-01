@@ -109,6 +109,8 @@ class CensoreProfanity(loader.Module):
         
         chat_id = utils.get_chat_id(message)
         flag = self.db.get(self.strings["name"], {}).get(chat_id, 0)
+
+        await message.answer(self.db.get(self.strings["name"], {}))
         
         if not flag or (flag == 1 and message.sender_id != self.me_id):
             return
