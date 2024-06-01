@@ -1,8 +1,6 @@
 from hikkatl.types import Message
 from .. import loader, utils
 
-censor = Censor(languages=["all"])
-
 @loader.tds
 class CensoreProfanity(loader.Module):
     """A module to remove profanity from your messages"""
