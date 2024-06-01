@@ -67,15 +67,20 @@ class CensoreProfanity(loader.Module):
         
         if not args or args == "*":
             chat_id = utils.get_chat_id(message)
+            flag = 2 if args == "*" else 1
         elif args.isnumeric():
             chat_id = int(args)
+            flag = 1
         else:
             try:
                 chat_id = (await self.client.get_entity(args)).id
+                flag = 1
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.strings["name"], chat_id, 1)
+        ids = self.db.get(self.strings["name"], {})
+        ids[chat_id] = flag
+        self.db.set(self.strings["name"], ids)
         await message.edit("Включено")
 
     async def censoffcmd(self, message: Message):
@@ -99,7 +104,10 @@ class CensoreProfanity(loader.Module):
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.strings["name"], chat_id, 0)
+        ids = self.db.get(self.strings["name"], {})
+        if chat_id in ids:
+            del ids[chat_id]
+        self.db.set(self.strings["name"], ids)
         await message.edit("off")
 
     @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
@@ -108,7 +116,9 @@ class CensoreProfanity(loader.Module):
         
         chat_id = utils.get_chat_id(message)
         ids = self.db.get(self.strings["name"], {})
-        flag = ids.get(chat_id, 1)
+        flag = ids.get(chat_id, 0)
 
-        if flag == 1:
-            await message.edit(self.censor_text(message.raw_text))
+        if flag == 0 or (flag == 1 and message.sender_id != self.me_id):
+            return
+
+        await message.edit(self.censor_text(message.raw_text))
