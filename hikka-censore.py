@@ -37,14 +37,14 @@ class CensoreProfanity(loader.Module):
         if raw_text != censored_text:
             await message.edit(censored_text)
         else:
-            await message.edit(censored_text if not message.is_reply else "")
+            await message.edit(censored_text if not message.is_reply else "no")
 
     async def censlistcmd(self, message):
         """Выводит список айди чатов, в которых работает фильтрация"""
         ids = dict(self.db).get(self.name)
         
         if not ids:
-            return await message.edit(self.strings["censlist_empty"])
+            return await message.edit("empty")
         censlist = [
             f'<code>{x}</code>{"*" if ids[x]==2 else ""}'
             for x in ids
@@ -52,7 +52,7 @@ class CensoreProfanity(loader.Module):
         ]
         
         if not censlist:
-            return await message.edit(self.strings["censlist_empty"])
+            return await message.edit("empty")
             
         answer = " ".join(censlist)
         await message.edit(answer)
