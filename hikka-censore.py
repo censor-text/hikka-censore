@@ -24,7 +24,7 @@ class CensoreProfanity(loader.Module):
             loader.ConfigValue(
                 "partial_censorship",
                 False,
-                "Partial censorship",
+                "Determine whether to partially censor obscene language",
                 validator=loader.validators.Boolean(),
             ),
         )
