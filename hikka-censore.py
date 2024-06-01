@@ -30,10 +30,10 @@ class CensoreProfanity(loader.Module):
     async def censoffcmd(self, message: Message):
         """Disable censorship"""
         self.db.set(self.name, "enabled", False)
-        await message.edit(self.strings["enabled"])
+        await message.edit(self.strings["disabled"])
 
 
-    @loader.watcher()
+    @loader.watcher(only_messages=True, out=True, no_commands=True)
     async def watch_outgoing(self, message: Message):
         """Watch and edit outgoing text messages"""
 
