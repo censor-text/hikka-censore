@@ -13,6 +13,22 @@ class CensoreProfanity(loader.Module):
         "enabled": "✅ <b>Censorship is enabled</b>"
     }
 
+    def __init__(self):
+        self.config = loader.ModuleConfig(
+            loader.ConfigValue(
+                "censoring_char",
+                "#",
+                "Symbol for word censorship",
+                validator=loader.validators.String()
+            ),
+            loader.ConfigValue(
+                "partial_censorship",
+                False,
+                "Partial censorship",
+                validator=loader.validators.Boolean(),
+            ),
+        )
+
     async def client_ready(self, client, db):
         self.db = db
         self.name = self.strings["name"]
@@ -30,7 +46,7 @@ class CensoreProfanity(loader.Module):
     async def censoffcmd(self, message: Message):
         """Disable censorship"""
         self.db.set(self.name, "enabled", False)
-        await message.edit(self.strings["disabled"])
+        await message.edit(self.strings["enabled"])
 
 
     @loader.watcher(only_messages=True, out=True, no_commands=True)
@@ -40,4 +56,4 @@ class CensoreProfanity(loader.Module):
         is_enabled = self.db.get(self.name, "enabled", True)
 
         if is_enabled:
-            await message.edit(self.censor_text(message.raw_text))
+            await message.edit(self.censor_text(message.raw_text, censoring_char=self.config["censoring_char"], partial_censor=self.config["partial_censorship"]))
