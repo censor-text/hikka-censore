@@ -1,5 +1,6 @@
 from hikkatl.types import Message
 from .. import loader, utils
+# requires: censore
 from censore import Censor
 
 @loader.tds
@@ -11,6 +12,7 @@ class CensoreProfanity(loader.Module):
     async def client_ready(self, client, db):
         self.db = db
         self.me_id = (await client.get_me()).id
+
         self.censor = Censor(languages=["all"])
         self.censor_text = self.censor.censor_text
 
@@ -39,7 +41,7 @@ class CensoreProfanity(loader.Module):
 
     async def censlistcmd(self, message):
         """Выводит список айди чатов, в которых работает фильтрация"""
-        ids = dict(self.db).get(self.name)
+        ids = self.db.get(self.strings["name"], {})
         
         if not ids:
             return await message.edit("empty")
@@ -62,31 +64,19 @@ class CensoreProfanity(loader.Module):
         * запускает на все сообщения в текущем чате (по умолчанию на свои)"""
         
         args = utils.get_args_raw(message)
-        if args == "*":
-            chat = message.chat
-            if (
-                not isinstance(chat, Channel)
-                or not chat.admin_rights
-                or not chat.admin_rights.delete_messages
-            ):
-                return await message.edit("<b>Не могу удалять чужие посты в этом чате</b>")
-            flag = 1  # 2 - to filter all messages in the chat
-            args = args[:-1]
-            
-        else:
-            flag = 1  # 1 - to filter only user's messages
-        if not args:
-            id = utils.get_chat_id(message)
+        flag = 2 if args == "*" else 1
+        
+        if not args or args == "*":
+            chat_id = utils.get_chat_id(message)
         elif args.isnumeric():
-            id = int(args)
-            
+            chat_id = int(args)
         else:
             try:
-                id = (await self.client.get_entity(args)).id
+                chat_id = (await self.client.get_entity(args)).id
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.name, id, flag)
+        self.db.set(self.strings["name"], chat_id, flag)
         await message.edit("Включено")
 
     async def censoffcmd(self, message):
@@ -97,30 +87,28 @@ class CensoreProfanity(loader.Module):
         
         args = utils.get_args_raw(message)
         if args == "all":
-            del self.db[self.name]
+            self.db[self.strings["name"]] = {}
             return await message.edit("off")
             
         if not args:
-            id = utils.get_chat_id(message)
-            
+            chat_id = utils.get_chat_id(message)
         elif args.isnumeric():
-            id = int(args)
-            
+            chat_id = int(args)
         else:
             try:
-                id = (await self.client.get_entity(args)).id
+                chat_id = (await self.client.get_entity(args)).id
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.name, id, 0)
+        self.db.set(self.strings["name"], chat_id, 0)
         await message.edit("off")
 
     @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
     async def watch_outgoing(self, message: Message):
         """Watch and edit outgoing text messages"""
         
-        id = utils.get_chat_id(message)
-        flag = self.db.get(self.name, id, 0)
+        chat_id = utils.get_chat_id(message)
+        flag = self.db.get(self.strings["name"], {}).get(chat_id, 0)
         
         if not flag or (flag == 1 and message.sender_id != self.me_id):
             return
