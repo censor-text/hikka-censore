@@ -18,7 +18,7 @@ class CensoreProfanity(loader.Module):
         self.censor = Censor(languages=["all"])
         self.censor_text = self.censor.censor_text
 
-    @loader.watcher()
+    @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
     async def watch_outgoing(self, message: Message):
         """Watch and edit outgoing text messages"""
         await message.edit(self.censor_text(message.raw_text))
