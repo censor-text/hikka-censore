@@ -99,7 +99,7 @@ class CensoreProfanity(loader.Module):
             except Exception:
                 return await message.edit("invalid")
                 
-        self.db.set(self.strings["name"][chat_id], 0)
+        self.db.set(self.strings["name"], chat_id, 0)
         await message.edit("off")
 
     @loader.watcher(no_commands=True, out=True, only_messages=True, editable=True)
