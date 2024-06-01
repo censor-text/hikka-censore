@@ -72,7 +72,7 @@ class CensoreProfanity(loader.Module):
                 or not chat.admin_rights.delete_messages
             ):
                 return await message.edit("<b>Не могу удалять чужие посты в этом чате</b>")
-            flag = 2
+            flag = 1
             args = args[:-1]
             
         else:
@@ -123,7 +123,8 @@ class CensoreProfanity(loader.Module):
         
         id = utils.get_chat_id(event)
         flag = self.db.get(self.name, id, 0)
-        if not flag or ((flag == 1 or flag == 2) and event.sender_id != self.me_id):
+        
+        if flag == 0 and event.sender_id != self.me_id:
             return
 
         await message.edit(self.censor_text(message.raw_text))
