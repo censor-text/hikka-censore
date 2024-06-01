@@ -17,7 +17,7 @@ class CensoreProfanity(loader.Module):
         self.censor_text = self.censor.censor_text
 
     async def censcmd(self, message):
-        """.cens <reply>|<text>
+        """<reply>|<text>
         Проверка фильтра обсценной лексики"""
         
         args = utils.get_args_raw(message)
@@ -58,7 +58,7 @@ class CensoreProfanity(loader.Module):
         await message.edit(answer)
 
     async def censoncmd(self, message):
-        """.censon [<id>|<username>|*]
+        """[<id>|<username>|*]
         Запуск фильтрации в том чате, куда отправлена команда
         Можно запустить в любом чате по id или username
         * запускает на все сообщения в текущем чате (по умолчанию на свои)"""
@@ -67,7 +67,7 @@ class CensoreProfanity(loader.Module):
         
         if not args or args == "*":
             chat_id = utils.get_chat_id(message)
-            flag = 2 if args == "*" else 1
+            flag = 1
         elif args.isnumeric():
             chat_id = int(args)
             flag = 1
@@ -118,7 +118,7 @@ class CensoreProfanity(loader.Module):
         ids = self.db.get(self.strings["name"], {})
         flag = ids.get(chat_id, 0)
 
-        if flag == 0 or (flag == 1 and message.sender_id != self.me_id):
+        if flag == 0:
             return
 
         await message.edit(self.censor_text(message.raw_text))
