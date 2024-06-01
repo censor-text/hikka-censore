@@ -124,7 +124,7 @@ class CensoreProfanity(loader.Module):
         id = utils.get_chat_id(event)
         flag = self.db.get(self.name, id, 0)
         
-        if flag == 1 and event.sender_id != self.me_id:
+        if not flag or (flag == 1 and event.sender_id != self.me_id):
             return
 
         await message.edit(self.censor_text(message.raw_text))
