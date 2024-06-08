@@ -1,6 +1,8 @@
+# meta developer: @okineadev
+# requires: censore
+
 from hikkatl.types import Message
 from .. import loader, utils
-# requires: censore
 from censore import Censor
 
 @loader.tds
@@ -11,12 +13,6 @@ class CensoreProfanity(loader.Module):
         "name": "CensoreProfanity",
         "disabled": "❌ <b>Censorship is disabled</b>",
         "enabled": "✅ <b>Censorship is enabled</b>"
-    }
-
-    strings_ru = {
-        "name": "CensoreProfanity",
-        "disabled": "❌ <b>Цензура выключена</b>",
-        "enabled": "✅ <b>Цензура включена</b>"
     }
 
     def __init__(self):
@@ -53,12 +49,12 @@ class CensoreProfanity(loader.Module):
     async def censoncmd(self, message: Message):
         """Enable censorship"""
         self.config["enabled"] = True
-        await message.edit(self.strings("enabled"))
+        await message.edit(self.strings["enabled"])
 
     async def censoffcmd(self, message: Message):
         """Disable censorship"""
         self.config["enabled"] = False
-        await message.edit(self.strings("disabled"))
+        await message.edit(self.strings["enabled"])
 
 
     @loader.watcher(only_messages=True, out=True, no_commands=True)
