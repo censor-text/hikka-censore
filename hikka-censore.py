@@ -11,14 +11,14 @@ class CensoreProfanity(loader.Module):
 
     strings = {
         "name": "CensoreProfanity",
-        "disabled": "❌<emoji document_id=5210952531676504517>❌</emoji> <b>Censorship is disabled</b>",
-        "enabled": "✅<emoji document_id=5206607081334906820>✔️</emoji> <b>Censorship is enabled</b>"
+        "disabled": "<emoji document_id=5210952531676504517>❌</emoji> <b>Censorship is disabled</b>",
+        "enabled": "<emoji document_id=5206607081334906820>✔️</emoji> <b>Censorship is enabled</b>"
     }
 
     strings_ru = {
         "name": "CensoreProfanity",
-        "disabled": "❌<emoji document_id=5210952531676504517>❌</emoji> <b>Цензура выключена</b>",
-        "enabled": "✅<emoji document_id=5206607081334906820>✔️</emoji> <b>Цензура включена</b>"
+        "disabled": "<emoji document_id=5210952531676504517>❌</emoji> <b>Цензура выключена</b>",
+        "enabled": "<emoji document_id=5206607081334906820>✔️</emoji> <b>Цензура включена</b>"
     }
 
     def __init__(self):
