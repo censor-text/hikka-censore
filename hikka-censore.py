@@ -16,6 +16,12 @@ class CensoreProfanity(loader.Module):
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
+                "enabled",
+                True,
+                "Determines whether censorship is enabled",
+                validator=loader.validators.Boolean(),
+            ),
+            loader.ConfigValue(
                 "censoring_char",
                 "#",
                 "Symbol for word censorship",
@@ -36,16 +42,16 @@ class CensoreProfanity(loader.Module):
         self.censor = Censor(languages=["all"])
         self.censor_text = self.censor.censor_text
 
-        self.db.set(self.name, "enabled", True)
+        self.config["enabled"] = True
 
     async def censoncmd(self, message: Message):
         """Enable censorship"""
-        self.db.set(self.name, "enabled", True)
+        self.config["enabled"] = True
         await message.edit(self.strings["enabled"])
 
     async def censoffcmd(self, message: Message):
         """Disable censorship"""
-        self.db.set(self.name, "enabled", False)
+        self.config["enabled"] = False
         await message.edit(self.strings["enabled"])
 
 
@@ -53,7 +59,10 @@ class CensoreProfanity(loader.Module):
     async def watch_outgoing(self, message: Message):
         """Watch and edit outgoing text messages"""
 
-        is_enabled = self.db.get(self.name, "enabled", True)
+        is_enabled = self.config.get("enabled", True)
 
         if is_enabled:
-            await message.edit(self.censor_text(message.raw_text, censoring_char=self.config["censoring_char"], partial_censor=self.config["partial_censorship"]))
+            censored_text = self.censor_text(message.raw_text, censoring_char=self.config["censoring_char"], partial_censor=self.config["partial_censorship"])
+
+            if message.raw_text != censored_text:
+                await message.edit(censored_text)
