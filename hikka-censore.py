@@ -13,6 +13,12 @@ class CensoreProfanity(loader.Module):
         "enabled": "✅ <b>Censorship is enabled</b>"
     }
 
+    strings_ru = {
+        "name": "CensoreProfanity",
+        "disabled": "❌ <b>Цензура выключена</b>",
+        "enabled": "✅ <b>Цензура включена</b>"
+    }
+
     def __init__(self):
         self.config = loader.ModuleConfig(
             loader.ConfigValue(
@@ -47,12 +53,12 @@ class CensoreProfanity(loader.Module):
     async def censoncmd(self, message: Message):
         """Enable censorship"""
         self.config["enabled"] = True
-        await message.edit(self.strings["enabled"])
+        await message.edit(self.strings("enabled"))
 
     async def censoffcmd(self, message: Message):
         """Disable censorship"""
         self.config["enabled"] = False
-        await message.edit(self.strings["enabled"])
+        await message.edit(self.strings("disabled"))
 
 
     @loader.watcher(only_messages=True, out=True, no_commands=True)
