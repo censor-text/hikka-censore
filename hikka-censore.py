@@ -1,9 +1,12 @@
+# censore-hikka
+
 # meta developer: @okineadev
 # requires: censore
 
-from hikkatl.types import Message
+from hikkatl.types import Message, PeerUser
 from .. import loader, utils
 from censore import Censor
+
 
 @loader.tds
 class CensoreProfanity(loader.Module):
@@ -12,13 +15,13 @@ class CensoreProfanity(loader.Module):
     strings = {
         "name": "CensoreProfanity",
         "disabled": "<emoji document_id=5210952531676504517>❌</emoji> <b>Censorship is disabled</b>",
-        "enabled": "<emoji document_id=5206607081334906820>✔️</emoji> <b>Censorship is enabled</b>"
+        "enabled": "<b>Censorship is enabled</b>",
     }
 
     strings_ru = {
         "name": "CensoreProfanity",
         "disabled": "<emoji document_id=5210952531676504517>❌</emoji> <b>Цензура выключена</b>",
-        "enabled": "<emoji document_id=5206607081334906820>✔️</emoji> <b>Цензура включена</b>"
+        "enabled": "<b>Цензура включена</b>",
     }
 
     def __init__(self):
@@ -33,7 +36,7 @@ class CensoreProfanity(loader.Module):
                 "censoring_char",
                 "#",
                 "Symbol for word censorship",
-                validator=loader.validators.String()
+                validator=loader.validators.String(),
             ),
             loader.ConfigValue(
                 "partial_censorship",
@@ -52,16 +55,30 @@ class CensoreProfanity(loader.Module):
 
         self.config["enabled"] = True
 
-    async def censoncmd(self, message: Message):
+    @loader.command(ru_doc="Включить цензуру")
+    async def censon(self, message: Message):
         """Enable censorship"""
         self.config["enabled"] = True
-        await message.edit(self.strings("enabled"))
+        await message.edit(
+            (
+                "<emoji document_id=5206607081334906820>✔️</emoji>"
+                if message.sender.premium
+                or (
+                    # In saved messages
+                    isinstance(message.peer_id, PeerUser)
+                    and message.from_id == message.to_id.user_id
+                )
+                else "✅"
+            )
+            + " "
+            + self.strings("enabled")
+        )
 
-    async def censoffcmd(self, message: Message):
+    @loader.command(ru_doc="Выключить цензуру")
+    async def censoff(self, message: Message):
         """Disable censorship"""
         self.config["enabled"] = False
         await message.edit(self.strings("disabled"))
-
 
     @loader.watcher(only_messages=True, out=True, no_commands=True)
     async def watch_outgoing(self, message: Message):
@@ -70,7 +87,11 @@ class CensoreProfanity(loader.Module):
         is_enabled = self.config.get("enabled", True)
 
         if is_enabled:
-            censored_text = self.censor_text(message.raw_text, censoring_char=self.config["censoring_char"], partial_censor=self.config["partial_censorship"])
+            censored_text = self.censor_text(
+                message.raw_text,
+                censoring_char=self.config["censoring_char"],
+                partial_censor=self.config["partial_censorship"],
+            )
 
             if message.raw_text != censored_text:
                 await message.edit(censored_text)
