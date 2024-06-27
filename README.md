@@ -1,6 +1,6 @@
-# hikka-censore (Beta)
+# hikka-censore
 
-Module with censorship for the Hikka userbot
+Module with censorship for the [**Hikka** userbot](https://github.com/hikariatama/Hikka)
 
 ## ⚙️ Installation
 
